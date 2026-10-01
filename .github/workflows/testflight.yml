@@ -19,6 +19,11 @@ on:
         options:
           - production
           - preview
+      skip_build:
+        description: "Skip the build and submit the latest finished build (to retry an upload)"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: testflight-${{ github.ref }}
@@ -113,6 +118,7 @@ jobs:
       # eas-cli prints a whole minified source line when it crashes, and GitHub
       # then drops the error after it; trimming each line keeps the error.
       - name: Build iOS app
+        if: github.event.inputs.skip_build != 'true'
         run: |
           set -o pipefail
           eas build \
@@ -129,4 +135,5 @@ jobs:
             --platform ios \
             --profile production \
             --latest \
-            --non-interactive 2>&1 | cut -c1-2000
+            --non-interactive \
+            --verbose 2>&1 | cut -c1-2000
