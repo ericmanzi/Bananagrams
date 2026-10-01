@@ -52,15 +52,17 @@ to `main` it then builds the app on EAS and submits it to TestFlight. You can
 also run it by hand from the Actions tab, and choose the `preview` profile to
 build without submitting.
 
-The workflow sets itself up from four secrets:
+The workflow runs from four secrets plus signing credentials stored on EAS:
 
-- **EAS project:** it links or creates `@petertacos/bananagrams` on each run.
-- **Signing:** EAS creates the certificate and provisioning profile using the
-  App Store Connect API key.
+- **EAS project:** `@petertacos/bananagrams`, whose ID is in `app.json`.
+- **Signing:** the distribution certificate has to be assigned to the app on
+  EAS once, interactively (step 6); eas-cli never creates or assigns one in
+  CI. After that, the App Store Connect API key lets CI renew the
+  provisioning profile without prompts.
 - **App lookup:** it finds the App Store Connect app by its bundle ID, so
   `ascAppId` in `eas.json` never needs editing.
 
-### One-time setup (about 10 minutes, all in a browser)
+### One-time setup
 
 1. **Register the bundle ID.** In the
    [Apple Developer portal](https://developer.apple.com/account/resources/identifiers/list),
@@ -77,8 +79,8 @@ The workflow sets itself up from four secrets:
    Integrations → App Store Connect API → Team Keys. Click **+**, name the key
    (for example "GitHub Actions"), give it the **Admin** role, and download
    the `.p8` (Apple only lets you download it once). Admin is needed because
-   CI creates signing certificates and profiles; App Manager is enough to
-   upload builds but may not be enough to create those. Note the **Key ID**
+   CI manages provisioning profiles; App Manager is enough to upload builds
+   but may not be enough for that. Note the **Key ID**
    in the table and the **Issuer ID** shown above it. You can reuse an existing
    Admin team key if you still have its `.p8` file.
 
@@ -97,13 +99,26 @@ The workflow sets itself up from four secrets:
    | `ASC_KEY_ID` | the Key ID |
    | `ASC_ISSUER_ID` | the Issuer ID |
 
-6. **Run it.** Merge to `main`, or go to Actions → *Deploy to TestFlight* →
-   Run workflow. The first build takes about 15–20 minutes. The build then
+6. **Signing credentials (once, on your computer).** You need Node 22 and the
+   repo:
+
+   ```bash
+   git clone https://github.com/ericmanzi/Bananagrams && cd Bananagrams
+   npm ci
+   npx eas-cli login                                   # as petertacos
+   npx eas-cli credentials:configure-build -p ios -e production
+   ```
+
+   Answer the prompts:
+   - Log in to your Apple account: **yes** (Apple ID, then the 2FA code).
+   - Reuse the existing distribution certificate (the one SeparateCompanions
+     uses): **yes**.
+   - Generate a new provisioning profile: **yes**.
+
+7. **Run it.** Go to Actions → *Deploy to TestFlight* → Run workflow, or
+   push to `main`. The first build takes about 15–20 minutes. The build then
    appears in App Store Connect under TestFlight, where you add yourself as a
    tester.
-
-Optional: run `npx eas-cli init` once and commit `app.json`, so the project ID
-is in the repo. Until you do, the workflow prints a warning but still works.
 
 `ci.yml` runs the typecheck and tests on pull requests and branch pushes.
 

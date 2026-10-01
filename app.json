@@ -43,6 +43,11 @@
     "scheme": "bananagrams",
     "experiments": {
       "typedRoutes": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e06fbef3-1af4-469e-9eba-21e3e362b488"
+      }
     }
   }
 }

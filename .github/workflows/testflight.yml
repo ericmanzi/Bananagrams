@@ -2,7 +2,8 @@ name: Deploy to TestFlight
 
 # Mirrors SeparateCompanions' workflow: every push to main builds the iOS app
 # on EAS and submits it to TestFlight. See README.md for the one-time setup:
-# an App Store Connect app record and four repository secrets.
+# an App Store Connect app record, four repository secrets, and signing
+# credentials assigned on EAS once by running `eas credentials:configure-build`.
 
 on:
   push:
@@ -68,8 +69,7 @@ jobs:
           PROFILE="${{ github.event.inputs.profile || 'production' }}"
           echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
 
-      # `eas init` once locally and commit the projectId; until then this links
-      # (or creates) @owner/bananagrams for the run.
+      # The projectId is committed; this only matters if app.json ever loses it.
       - name: Link EAS project
         run: |
           if ! node -e 'process.exit(require("./app.json").expo.extra?.eas?.projectId ? 0 : 1)'; then
@@ -77,10 +77,10 @@ jobs:
             eas init --non-interactive --force
           fi
 
-      # With an App Store Connect API key, EAS creates the signing certificate
-      # and provisioning profile itself, and the submit step finds the app's
-      # ascAppId by bundle ID. Without one, both must already be set up on EAS
-      # (`eas credentials -p ios`) and ascAppId filled in by hand in eas.json.
+      # The distribution certificate must already be assigned on EAS (README,
+      # one-time setup step 6): eas-cli never creates one non-interactively.
+      # The API key lets EAS manage the provisioning profile, and lets the
+      # submit step find the app's ascAppId by bundle ID.
       - name: App Store Connect API key
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
