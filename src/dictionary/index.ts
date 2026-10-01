@@ -1,6 +1,6 @@
 // ─── Dictionary ───────────────────────────────────────────────────────────────
-// The SOWPODS list the web game uses, bundled into the app (see
-// scripts/build-dictionary.js). Splitting ~268k words into a Set takes a
+// The public-domain ENABLE word list, bundled into the app (see
+// scripts/build-dictionary.js). Splitting ~173k words into a Set takes a
 // moment on a phone, so it is built once, on demand, and shared.
 
 import type { Dictionary } from '../game/types';
@@ -9,7 +9,7 @@ let cached: Set<string> | null = null;
 
 export function loadDictionary(): Set<string> {
   if (!cached) {
-    const words: string = require('./sowpods');
+    const words: string = require('./enable');
     cached = new Set(words.split('\n'));
   }
   return cached;

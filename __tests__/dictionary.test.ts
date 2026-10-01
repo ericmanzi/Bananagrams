@@ -5,9 +5,9 @@ import { normalizeRoomCode, parseServerMessage } from '../src/online/protocol';
 describe('bundled dictionary', () => {
   const words = loadDictionary();
 
-  it('holds the SOWPODS list', () => {
-    expect(words.size).toBeGreaterThan(260000);
-    for (const w of ['QI', 'ZA', 'BANANA', 'BANANAS', 'PEEL', 'CAT']) expect(words.has(w)).toBe(true);
+  it('holds the ENABLE list', () => {
+    expect(words.size).toBe(172823);
+    for (const w of ['XI', 'JO', 'BANANA', 'BANANAS', 'PEEL', 'CAT']) expect(words.has(w)).toBe(true);
   });
 
   it('has no single letters or lowercase entries', () => {

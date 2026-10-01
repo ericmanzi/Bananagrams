@@ -8,6 +8,7 @@ An iOS app (Expo SDK 57, React Native, expo-router, TypeScript) of the
 Bananagrams game from the `ericmanzi.github.io` repo (`bananagrams/` online,
 `bananagrams-1p/` solo). Shipped to TestFlight through EAS by
 `.github/workflows/testflight.yml`, modelled on the SeparateCompanions repo.
+The store name is "Bananagrams 2 player".
 
 ## Commands
 
@@ -34,9 +35,13 @@ Run the tests and the typecheck before pushing; CI runs both, and a push to
 - The board is one Pressable. The tapped cell comes from the touch position, and
   tiles and grid lines have `pointerEvents="none"`. Don't make cells
   individually pressable (625 of them)
-- The dictionary is a generated JS module holding one long string, built into a
-  `Set` on first use. Regenerate it with `scripts/build-dictionary.js`, never by
-  hand
+- The dictionary is the public-domain ENABLE list (not the web game's
+  SOWPODS, which is copyrighted), as a generated JS module holding one long
+  string, built into a `Set` on first use. Regenerate it with
+  `scripts/build-dictionary.js`, never by hand. Tips must only suggest words in
+  it; a test checks this
+- CI finds the App Store Connect app by bundle ID (`scripts/configure-submit.js`),
+  so `ascAppId` in `eas.json` stays a placeholder on purpose
 
 ## Dependencies
 

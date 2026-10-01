@@ -21,6 +21,8 @@ export function twoLetterCheck(previous: readonly string[], words: PlacedWord[])
   return { current, hasNew: current.some((w) => !before.has(w)) };
 }
 
+// Every word here is in the bundled ENABLE list (checked in __tests__). ENABLE
+// predates QI and ZA, so unlike the web game's tips they are not suggested.
 export const TWO_LETTER_TIPS =
-  'QI, ZA, XI, XU, JO, KA, KI, OX, AX, EX, ZO — and the H words: AH, EH, UH, OH, HA, HE, HI, HM, HO, SH. ' +
+  'XI, XU, JO, KA, OX, AX, EX, OY, AY — and the H words: AH, EH, UH, OH, HA, HE, HI, HM, HO, SH. ' +
   'Everyday ones: AB, AM, AN, AS, AT, AW, BY, DO, GO, IF, IN, IS, ME, MY, NO, OF, ON, OR, OW, PA, PI, RE, TO, UP, US, WE, YO.';

@@ -1,20 +1,22 @@
-# Bananagrams for iOS
+# Bananagrams 2 player (iOS)
 
 An iOS app of the Bananagrams game from
 [ericmanzi.github.io/bananagrams](https://ericmanzi.github.io/bananagrams/), built
 with Expo (SDK 57) and React Native. It has both modes from the web version:
 
+- **Online (2 player)**: create or join a room with a 6-letter code. It uses the
+  same WebSocket backend as the web game (`ericmanzi.github.io/backend`), so a
+  phone and a browser can play each other. If iOS drops the connection while
+  the app is in the background, the app rejoins the room when you come back.
 - **Solo**: 21 tiles, PEEL, DUMP, BANANAS. The game is saved as you play and
   resumes where you left off. Your best time is kept.
-- **Online**: create or join a room with a 6-letter code. It uses the same
-  WebSocket backend as the web game (`ericmanzi.github.io/backend`), so a phone
-  and a browser can play each other. If iOS drops the connection while the app
-  is in the background, the app rejoins the room when you come back.
 
 What changed for the phone:
 
-- The SOWPODS dictionary is bundled into the app, so it works offline and
-  doesn't download on every launch.
+- The dictionary is the public-domain ENABLE list, bundled into the app, so it
+  works offline. The web game uses SOWPODS, which also accepts words like QI
+  and ZA. In an online game each player's board is checked by their own
+  device, so an app player can't use those words.
 - The board scrolls in both directions and pinch-zooms.
 - Tapping an occupied cell, or a hand tile while a board tile is selected,
   swaps the two tiles.
@@ -27,7 +29,7 @@ What changed for the phone:
 ```bash
 npm install
 npm start          # then press i for the iOS simulator, or scan with Expo Go
-npm test           # game-logic unit tests (Jest)
+npm test           # unit tests (Jest)
 npm run typecheck
 ```
 
@@ -39,68 +41,75 @@ npm run typecheck
 | `src/game/` | Pure game logic: tiles, grid rules, moves, solo engine. No React, fully unit-tested |
 | `src/online/` | WebSocket protocol types and the `useOnlineGame` state machine |
 | `src/components/` | Board, hand, buttons, sheets and so on |
-| `src/dictionary/` | Bundled SOWPODS word list (generated; see `scripts/build-dictionary.js`) |
+| `src/dictionary/` | Bundled ENABLE word list (generated; see `scripts/build-dictionary.js`) |
+| `scripts/` | Dictionary generator, and `configure-submit.js`, which CI uses to find the App Store Connect app |
 | `__tests__/` | Jest tests |
 
 ## Shipping to TestFlight
 
-This uses the same setup as SeparateCompanions. `.github/workflows/testflight.yml`
-typechecks and tests the app. On every push to `main` it then builds the app on
-EAS and submits it to TestFlight. You can also run it by hand from the Actions
-tab, and choose the `preview` profile to build without submitting.
+`.github/workflows/testflight.yml` typechecks and tests the app. On every push
+to `main` it then builds the app on EAS and submits it to TestFlight. You can
+also run it by hand from the Actions tab, and choose the `preview` profile to
+build without submitting.
 
-### One-time setup
+The workflow sets itself up from four secrets:
 
-1. **EAS project.** Log in as the Expo account that owns SeparateCompanions
-   (`petertacos`, set as `owner` in `app.json`), then link the project:
+- **EAS project:** it links or creates `@petertacos/bananagrams` on each run.
+- **Signing:** EAS creates the certificate and provisioning profile using the
+  App Store Connect API key.
+- **App lookup:** it finds the App Store Connect app by its bundle ID, so
+  `ascAppId` in `eas.json` never needs editing.
 
-   ```bash
-   npx eas-cli login
-   npx eas-cli init          # writes extra.eas.projectId into app.json
-   ```
+### One-time setup (about 10 minutes, all in a browser)
 
-   Commit the updated `app.json`. Until you do, the workflow links the project
-   on each run and prints a warning.
+1. **Register the bundle ID.** In the
+   [Apple Developer portal](https://developer.apple.com/account/resources/identifiers/list),
+   go to Identifiers → **+** → App IDs → App. Enter a description such as
+   "Bananagrams 2 player" and the explicit bundle ID
+   `com.ericmanzi.bananagrams`, then Register.
 
-2. **App Store Connect app.** In App Store Connect, go to Apps → + → New App.
-   Pick bundle ID `com.ericmanzi.bananagrams`; if it isn't listed yet, step 3
-   registers it. Then copy the app's **Apple ID** (App Information → Apple ID)
-   into `eas.json` → `submit.production.ios.ascAppId`, replacing
-   `REPLACE_WITH_APP_STORE_CONNECT_APP_ID`.
+2. **Create the app.** In [App Store Connect](https://appstoreconnect.apple.com/apps),
+   go to **+** → New App. Choose iOS, name it **Bananagrams 2 player**, choose
+   English (U.S.) as the primary language, pick bundle ID
+   `com.ericmanzi.bananagrams`, and enter any SKU (for example `bananagrams`).
 
-   > **Name:** App Store names must be unique, and "Bananagrams" is the
-   > trademarked name of the official game, so App Store Connect will likely
-   > reject it. Use something else for the store listing. You can keep
-   > "Bananagrams" as the home-screen name (`expo.name` in `app.json`) for
-   > TestFlight, but change it too before any public release.
+3. **App Store Connect API key.** In App Store Connect, go to Users and Access →
+   Integrations → App Store Connect API → Team Keys. Reuse the key you made for
+   SeparateCompanions if you still have its `.p8` file. Otherwise click **+**,
+   give it the **App Manager** role and download the `.p8` (Apple only lets you
+   download it once). Note the **Key ID** and the **Issuer ID** shown above the
+   table.
 
-3. **iOS signing credentials.** Do one of these:
-   - Run `npx eas-cli credentials -p ios` locally, choose the `production`
-     profile, and let it set up the distribution certificate (you can reuse
-     SeparateCompanions') and a provisioning profile. Then choose
-     *App Store Connect: Manage your API Key* and assign the existing key for
-     submissions.
-   - Or add these repository secrets: `ASC_API_KEY_P8` (the contents of the
-     `.p8` file), `ASC_KEY_ID` and `ASC_ISSUER_ID`. EAS then creates the
-     provisioning profile in CI.
+4. **Expo token.** At [expo.dev](https://expo.dev/settings/access-tokens),
+   signed in as `petertacos`, go to Access tokens → Create. Or reuse the
+   `EXPO_TOKEN` already set up for SeparateCompanions.
 
-4. **GitHub.** In this repo, go to Settings → Environments, create an
-   environment named `testflight`, and add the secret `EXPO_TOKEN` (an Expo
-   access token for the account above; SeparateCompanions' token works).
+5. **GitHub secrets.** In this repo, go to Settings → Secrets and variables →
+   Actions → New repository secret, and add:
 
-5. Merge to `main`. The workflow builds the app and uploads it to TestFlight.
-   The first build takes about 15–20 minutes on EAS.
+   | Secret | Value |
+   | --- | --- |
+   | `EXPO_TOKEN` | the Expo token |
+   | `ASC_API_KEY_P8` | the whole contents of the `.p8` file, including the `BEGIN`/`END` lines |
+   | `ASC_KEY_ID` | the Key ID |
+   | `ASC_ISSUER_ID` | the Issuer ID |
+
+6. **Run it.** Merge to `main`, or go to Actions → *Deploy to TestFlight* →
+   Run workflow. The first build takes about 15–20 minutes. The build then
+   appears in App Store Connect under TestFlight, where you add yourself as a
+   tester.
+
+Optional: run `npx eas-cli init` once and commit `app.json`, so the project ID
+is in the repo. Until you do, the workflow prints a warning but still works.
 
 `ci.yml` runs the typecheck and tests on pull requests and branch pushes.
 
 ## Notes
 
-- **Dictionary licence.** The bundled list is the SOWPODS (Collins Scrabble
-  Words) file the web game already downloads. Collins Scrabble Words is
-  copyrighted by HarperCollins. That's fine for TestFlight, but before a public
-  App Store release, consider switching to a public-domain list such as ENABLE.
-  To switch, regenerate `src/dictionary/sowpods.js` with
-  `scripts/build-dictionary.js`.
+- **Home-screen name.** iOS cuts long names on the home screen, so
+  "Bananagrams 2 player" shows as roughly "Bananagrams…". To show a shorter
+  label there while keeping the full name in the App Store, change `expo.name`
+  in `app.json`.
 - **Dependency versions.** Native module versions are pinned to what Expo SDK
   57 expects. `react-native-gesture-handler`, `react-native-reanimated` and
   `react-native-worklets` are listed only for this reason: expo-router pulls
