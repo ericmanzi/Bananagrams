@@ -1,0 +1,131 @@
+name: Deploy to TestFlight
+
+# Mirrors SeparateCompanions' workflow: every push to main builds the iOS app
+# on EAS and submits it to TestFlight. See README.md for the one-time setup:
+# an App Store Connect app record and four repository secrets.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS build profile"
+        required: false
+        default: "production"
+        type: choice
+        options:
+          - production
+          - preview
+
+concurrency:
+  group: testflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Typecheck & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  build-and-submit:
+    name: Build iOS & Submit to TestFlight
+    needs: test
+    runs-on: ubuntu-latest
+    environment: testflight
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Determine build profile
+        id: profile
+        run: |
+          PROFILE="${{ github.event.inputs.profile || 'production' }}"
+          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
+
+      # `eas init` once locally and commit the projectId; until then this links
+      # (or creates) @owner/bananagrams for the run.
+      - name: Link EAS project
+        run: |
+          if ! node -e 'process.exit(require("./app.json").expo.extra?.eas?.projectId ? 0 : 1)'; then
+            echo "::warning::app.json has no extra.eas.projectId; linking for this run. Run 'npx eas-cli init' and commit app.json."
+            eas init --non-interactive --force
+          fi
+
+      # With an App Store Connect API key, EAS creates the signing certificate
+      # and provisioning profile itself, and the submit step finds the app's
+      # ascAppId by bundle ID. Without one, both must already be set up on EAS
+      # (`eas credentials -p ios`) and ascAppId filled in by hand in eas.json.
+      - name: App Store Connect API key
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ -n "$ASC_API_KEY_P8" ] && [ -n "$ASC_KEY_ID" ]; then
+            printf '%s\n' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/asc_api_key.p8"
+            {
+              echo "ASC_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
+              echo "ASC_KEY_ID=$ASC_KEY_ID"
+              echo "ASC_ISSUER_ID=$ASC_ISSUER_ID"
+              echo "EXPO_ASC_API_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
+              echo "EXPO_ASC_KEY_ID=$ASC_KEY_ID"
+              echo "EXPO_ASC_ISSUER_ID=$ASC_ISSUER_ID"
+              echo "EXPO_APPLE_TEAM_ID=L5J8323X42"
+            } >> "$GITHUB_ENV"
+          else
+            echo "::notice::No ASC_API_KEY_P8/ASC_KEY_ID secrets; using credentials stored on EAS."
+          fi
+
+      # Before the build, so a missing App Store Connect app fails in seconds.
+      - name: Configure submit profile
+        if: steps.profile.outputs.profile == 'production'
+        run: |
+          if [ -n "$ASC_KEY_PATH" ]; then
+            node scripts/configure-submit.js
+          elif grep -q REPLACE_WITH_APP_STORE_CONNECT_APP_ID eas.json; then
+            echo "::error::Add the ASC_API_KEY_P8 and ASC_KEY_ID secrets, or set submit.production.ios.ascAppId in eas.json to the app's Apple ID from App Store Connect."
+            exit 1
+          fi
+
+      - name: Build iOS app
+        run: |
+          eas build \
+            --platform ios \
+            --profile ${{ steps.profile.outputs.profile }} \
+            --non-interactive \
+            --wait
+
+      - name: Submit to TestFlight
+        if: steps.profile.outputs.profile == 'production'
+        run: |
+          eas submit \
+            --platform ios \
+            --profile production \
+            --latest \
+            --non-interactive
