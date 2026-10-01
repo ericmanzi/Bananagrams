@@ -55,10 +55,10 @@ build without submitting.
 The workflow runs from four secrets plus signing credentials stored on EAS:
 
 - **EAS project:** `@petertacos/bananagrams`, whose ID is in `app.json`.
-- **Signing:** the distribution certificate has to be assigned to the app on
-  EAS once, interactively (step 6); eas-cli never creates or assigns one in
-  CI. After that, the App Store Connect API key lets CI renew the
-  provisioning profile without prompts.
+- **Signing:** the distribution certificate and provisioning profile are set
+  up on EAS once, interactively (step 6); eas-cli never creates them in CI.
+  CI builds with what's stored there and doesn't log into Apple. Profiles
+  last a year; when one expires, run step 6 again.
 - **App lookup:** it finds the App Store Connect app by its bundle ID, so
   `ascAppId` in `eas.json` never needs editing.
 
@@ -78,9 +78,9 @@ The workflow runs from four secrets plus signing credentials stored on EAS:
 3. **App Store Connect API key.** In App Store Connect, go to Users and Access →
    Integrations → App Store Connect API → Team Keys. Click **+**, name the key
    (for example "GitHub Actions"), give it the **Admin** role, and download
-   the `.p8` (Apple only lets you download it once). Admin is needed because
-   CI manages provisioning profiles; App Manager is enough to upload builds
-   but may not be enough for that. Note the **Key ID**
+   the `.p8` (Apple only lets you download it once). CI uses it to find the
+   app and upload builds, which App Manager also allows; Admin leaves room
+   for more. Note the **Key ID**
    in the table and the **Issuer ID** shown above it. You can reuse an existing
    Admin team key if you still have its `.p8` file.
 

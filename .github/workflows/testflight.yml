@@ -77,10 +77,11 @@ jobs:
             eas init --non-interactive --force
           fi
 
-      # The distribution certificate must already be assigned on EAS (README,
-      # one-time setup step 6): eas-cli never creates one non-interactively.
-      # The API key lets EAS manage the provisioning profile, and lets the
-      # submit step find the app's ascAppId by bundle ID.
+      # Signing comes from the certificate and profile stored on EAS (README,
+      # one-time setup step 6). The API key is only used to find the app's
+      # ascAppId and to upload the build. It is deliberately not exported as
+      # EXPO_ASC_*: with those set, `eas build` logs into Apple to re-validate
+      # the profile, and in eas-cli 24.8 that crashed inside @expo/apple-utils.
       - name: App Store Connect API key
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
@@ -93,10 +94,6 @@ jobs:
               echo "ASC_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
               echo "ASC_KEY_ID=$ASC_KEY_ID"
               echo "ASC_ISSUER_ID=$ASC_ISSUER_ID"
-              echo "EXPO_ASC_API_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
-              echo "EXPO_ASC_KEY_ID=$ASC_KEY_ID"
-              echo "EXPO_ASC_ISSUER_ID=$ASC_ISSUER_ID"
-              echo "EXPO_APPLE_TEAM_ID=L5J8323X42"
             } >> "$GITHUB_ENV"
           else
             echo "::notice::No ASC_API_KEY_P8/ASC_KEY_ID secrets; using credentials stored on EAS."
@@ -113,19 +110,23 @@ jobs:
             exit 1
           fi
 
+      # eas-cli prints a whole minified source line when it crashes, and GitHub
+      # then drops the error after it; trimming each line keeps the error.
       - name: Build iOS app
         run: |
+          set -o pipefail
           eas build \
             --platform ios \
             --profile ${{ steps.profile.outputs.profile }} \
             --non-interactive \
-            --wait
+            --wait 2>&1 | cut -c1-2000
 
       - name: Submit to TestFlight
         if: steps.profile.outputs.profile == 'production'
         run: |
+          set -o pipefail
           eas submit \
             --platform ios \
             --profile production \
             --latest \
-            --non-interactive
+            --non-interactive 2>&1 | cut -c1-2000
