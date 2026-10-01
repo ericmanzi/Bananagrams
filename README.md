@@ -74,15 +74,18 @@ The workflow sets itself up from four secrets:
    `com.ericmanzi.bananagrams`, and enter any SKU (for example `bananagrams`).
 
 3. **App Store Connect API key.** In App Store Connect, go to Users and Access →
-   Integrations → App Store Connect API → Team Keys. Reuse the key you made for
-   SeparateCompanions if you still have its `.p8` file. Otherwise click **+**,
-   give it the **App Manager** role and download the `.p8` (Apple only lets you
-   download it once). Note the **Key ID** and the **Issuer ID** shown above the
-   table.
+   Integrations → App Store Connect API → Team Keys. Click **+**, name the key
+   (for example "GitHub Actions"), give it the **Admin** role, and download
+   the `.p8` (Apple only lets you download it once). Admin is needed because
+   CI creates signing certificates and profiles; App Manager is enough to
+   upload builds but may not be enough to create those. Note the **Key ID**
+   in the table and the **Issuer ID** shown above it. You can reuse an existing
+   Admin team key if you still have its `.p8` file.
 
-4. **Expo token.** At [expo.dev](https://expo.dev/settings/access-tokens),
-   signed in as `petertacos`, go to Access tokens → Create. Or reuse the
-   `EXPO_TOKEN` already set up for SeparateCompanions.
+4. **Expo token.** At [expo.dev](https://expo.dev), signed in as
+   `petertacos`, go to Account settings → Access tokens → Create token, and
+   copy it (it's shown once). GitHub won't show you SeparateCompanions'
+   `EXPO_TOKEN` secret, so make a new token unless you saved that one.
 
 5. **GitHub secrets.** In this repo, go to Settings → Secrets and variables →
    Actions → New repository secret, and add:
