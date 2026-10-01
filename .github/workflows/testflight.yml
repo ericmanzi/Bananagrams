@@ -94,7 +94,9 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           if [ -n "$ASC_API_KEY_P8" ] && [ -n "$ASC_KEY_ID" ]; then
-            printf '%s\n' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/asc_api_key.p8"
+            # Rewritten as canonical PKCS#8: Expo rejects a key with anything
+            # before the BEGIN line, which a pasted secret often has.
+            node scripts/configure-submit.js --write-key "$RUNNER_TEMP/asc_api_key.p8"
             {
               echo "ASC_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
               echo "ASC_KEY_ID=$ASC_KEY_ID"
