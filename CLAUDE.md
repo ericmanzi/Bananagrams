@@ -45,6 +45,10 @@ Run the tests and the typecheck before pushing; CI runs both, and a push to
   it; a test checks this
 - CI finds the App Store Connect app by bundle ID (`scripts/configure-submit.js`),
   so `ascAppId` in `eas.json` stays a placeholder on purpose
+- App Store keywords come from `store/keywords.txt` (100 characters max),
+  pushed by `scripts/store-listing.js` in CI. "bananagrams" there is the owner's
+  deliberate choice for search, despite guideline 2.3.7; it's the one place the
+  trademark appears
 
 ## Dependencies
 

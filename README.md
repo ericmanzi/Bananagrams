@@ -120,6 +120,20 @@ The workflow runs from four secrets plus signing credentials stored on EAS:
    appears in App Store Connect under TestFlight, where you add yourself as a
    tester.
 
+### App Store keywords
+
+The listing's search keywords live in `store/keywords.txt`: comma-separated, at
+most 100 characters. The workflow's *Update App Store keywords* job
+(`scripts/store-listing.js`) pushes them to every version in App Store Connect
+that can still be edited, normally the one in "Prepare for Submission". To
+change them, edit the file and push to `main`, or start the workflow by hand
+with **listing_only** ticked to skip the build.
+
+They include "bananagrams" on purpose, so people searching for that find the
+app. App Review guideline 2.3.7 forbids other companies' trademarks in
+metadata, so if the app is rejected for it, or Bananagrams, Inc. complains,
+remove those two words from the file and push again.
+
 `ci.yml` runs the typecheck and tests on pull requests and branch pushes.
 
 ## Notes
