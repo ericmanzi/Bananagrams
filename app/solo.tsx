@@ -1,5 +1,5 @@
 // ─── Solo game ────────────────────────────────────────────────────────────────
-// Single-player Bananagrams. The game is saved after every change and resumed
+// Single-player Nanagrams. The game is saved after every change and resumed
 // when the screen opens, unless it was opened with ?new=1.
 
 import { useLocalSearchParams } from 'expo-router';

@@ -40,7 +40,7 @@ function RoomCode({ code }: { code: string }) {
           label="📤 Share"
           size="small"
           variant="blue"
-          onPress={() => Share.share({ message: `Play Bananagrams with me! Room code: ${code}` })}
+          onPress={() => Share.share({ message: `Play Nanagrams with me! Room code: ${code}` })}
         />
       </View>
     </View>
@@ -81,7 +81,7 @@ export default function OnlineScreen() {
       const code = normalizeRoomCode(joinInput);
       return (
         <CardScreen>
-          <Title sub="Online — play a friend">🍌 BANANAGRAMS</Title>
+          <Title sub="Online — play a friend">🍌 NANAGRAMS</Title>
           {game.saved && (
             <Button label={`↩ Rejoin ${game.saved.roomCode}`} variant="orange" onPress={game.rejoin} />
           )}

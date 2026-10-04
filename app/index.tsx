@@ -27,12 +27,12 @@ export default function Home() {
 
   return (
     <CardScreen>
-      <View style={styles.tiles} accessible accessibilityLabel="Bananagrams">
+      <View style={styles.tiles} accessible accessibilityLabel="Nanagrams">
         {'BANANA'.split('').map((l, i) => (
           <TileFace key={i} letter={l} size={40} look={i % 2 ? 'plain' : 'valid'} />
         ))}
       </View>
-      <Title sub="Race to use every tile">BANANAGRAMS</Title>
+      <Title sub="Race to use every tile">NANAGRAMS</Title>
 
       {savedSolo ? (
         <>

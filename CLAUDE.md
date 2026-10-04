@@ -4,11 +4,14 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-An iOS app (Expo SDK 57, React Native, expo-router, TypeScript) of the
-Bananagrams game from the `ericmanzi.github.io` repo (`bananagrams/` online,
+Nanagrams: an iOS app (Expo SDK 57, React Native, expo-router, TypeScript) of
+the Bananagrams-style game from the `ericmanzi.github.io` repo (`bananagrams/` online,
 `bananagrams-1p/` solo). Shipped to TestFlight through EAS by
 `.github/workflows/testflight.yml`, modelled on the SeparateCompanions repo.
-The store name is "Bananagrams 2 player".
+The app and store name is "Nanagrams"; never use "Bananagrams" (a trademark)
+in anything players see. The bundle ID, Expo slug and storage keys still say
+"bananagrams" because they can't change without breaking the App Store
+Connect app, the EAS project and saved games.
 
 ## Commands
 
