@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+  Source of assets/icon.png. Render it at exactly 1024x1024 and save as an
+  opaque PNG (App Store icons must not have an alpha channel), e.g. with
+  Playwright: open this file in a 1024x1024 viewport and take a screenshot,
+  then convert it to RGB.
+--><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#16213e}svg{display:block}</style></head><body>
+<svg id="s" width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#26386a"/><stop offset="1" stop-color="#111930"/>
+    </radialGradient>
+    <linearGradient id="peel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF38A"/>
+      <stop offset="0.5" stop-color="#FFE135"/>
+      <stop offset="1" stop-color="#E7A90C"/>
+    </linearGradient>
+    <linearGradient id="peelBack" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7D84A"/>
+      <stop offset="1" stop-color="#D99A0A"/>
+    </linearGradient>
+    <linearGradient id="stemG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#A9C24A"/><stop offset="1" stop-color="#6E8A22"/>
+    </linearGradient>
+    <!-- One plump banana: stem end at (0,0), tip down-left. -->
+    <path id="shape" d="M 40 -6
+       C 120 190, 30 420, -300 470
+       C -332 474, -352 452, -338 430
+       C -120 370, -60 210, -62 -6
+       Z"/>
+    <g id="bananaFront">
+      <use href="#shape" fill="url(#peel)" stroke="#7a4c0e" stroke-width="14" stroke-linejoin="round"/>
+      <path d="M -20 40 C -10 200, -90 330, -280 420" fill="none" stroke="#FFF9C4" stroke-width="16" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 52 60 C 80 210, 10 360, -200 440" fill="none" stroke="#C88A06" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+      <path d="M -300 470 C -332 474, -352 452, -338 430 C -326 440, -312 452, -300 470 Z" fill="#4a2f12" stroke="#4a2f12" stroke-width="16" stroke-linejoin="round"/>
+    </g>
+    <g id="bananaBack">
+      <use href="#shape" fill="url(#peelBack)" stroke="#7a4c0e" stroke-width="14" stroke-linejoin="round"/>
+      <path d="M -300 470 C -332 474, -352 452, -338 430 C -326 440, -312 452, -300 470 Z" fill="#4a2f12" stroke="#4a2f12" stroke-width="16" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g id="bunch">
+    <use href="#bananaBack" transform="rotate(-38)"/>
+    <use href="#bananaBack" transform="rotate(30)"/>
+    <use href="#bananaFront" transform="rotate(-6)"/>
+    <path d="M -58 20 C -50 -40, -10 -110, 50 -150 L 92 -116 C 46 -80, 18 -30, 36 20 Z" fill="url(#stemG)" stroke="#4d6316" stroke-width="12" stroke-linejoin="round"/>
+    <rect x="34" y="-172" width="76" height="42" rx="12" transform="rotate(38 72 -151)" fill="#5a4320" stroke="#3b2a12" stroke-width="10"/>
+  </g>
+</svg>
+<script>
+  // Centre the bunch and scale it to fill most of the icon.
+  const g = document.getElementById('bunch');
+  const b = g.getBBox();
+  const target = 880, k = target / Math.max(b.width, b.height);
+  const tx = 512 - (b.x + b.width / 2) * k, ty = 520 - (b.y + b.height / 2) * k;
+  g.setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
+</script>
+</body></html>
