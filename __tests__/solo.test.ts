@@ -5,7 +5,7 @@ import { createTileBag, LETTER_DISTRIBUTION, STARTING_TILES, TOTAL_TILES } from 
 import { dict, gridWith, seeded, t } from './helpers';
 
 describe('tile bag', () => {
-  it('holds the 144 Bananagrams tiles with unique ids', () => {
+  it('holds the 144 tiles with unique ids', () => {
     const bag = createTileBag(seeded());
     expect(bag).toHaveLength(144);
     expect(TOTAL_TILES).toBe(144);

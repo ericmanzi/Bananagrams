@@ -24,6 +24,11 @@ on:
         required: false
         default: false
         type: boolean
+      listing_only:
+        description: "Only update the App Store listing (keywords); no build or upload"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: testflight-${{ github.ref }}
@@ -43,9 +48,36 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  # Keeps the App Store listing's keywords in step with store/keywords.txt.
+  # Harmless on every run: it only edits a version still being prepared, and
+  # does nothing if the keywords already match.
+  store-listing:
+    name: Update App Store keywords
+    needs: test
+    runs-on: ubuntu-latest
+    environment: testflight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Push keywords to App Store Connect
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ -z "$ASC_API_KEY_P8" ] || [ -z "$ASC_KEY_ID" ]; then
+            echo "::notice::No App Store Connect API key secrets; skipping the listing update."
+            exit 0
+          fi
+          node scripts/configure-submit.js --write-key "$RUNNER_TEMP/asc_api_key.p8"
+          ASC_KEY_PATH="$RUNNER_TEMP/asc_api_key.p8" node scripts/store-listing.js
+
   build-and-submit:
     name: Build iOS & Submit to TestFlight
     needs: test
+    if: github.event.inputs.listing_only != 'true'
     runs-on: ubuntu-latest
     environment: testflight
 

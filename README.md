@@ -1,6 +1,6 @@
-# Bananagrams 2 player (iOS)
+# Nanagrams (iOS)
 
-An iOS app of the Bananagrams game from
+Nanagrams is an iOS app of the Bananagrams-style word game from
 [ericmanzi.github.io/bananagrams](https://ericmanzi.github.io/bananagrams/), built
 with Expo (SDK 57) and React Native. It has both modes from the web version:
 
@@ -67,11 +67,11 @@ The workflow runs from four secrets plus signing credentials stored on EAS:
 1. **Register the bundle ID.** In the
    [Apple Developer portal](https://developer.apple.com/account/resources/identifiers/list),
    go to Identifiers → **+** → App IDs → App. Enter a description such as
-   "Bananagrams 2 player" and the explicit bundle ID
+   "Nanagrams" and the explicit bundle ID
    `com.ericmanzi.bananagrams`, then Register.
 
 2. **Create the app.** In [App Store Connect](https://appstoreconnect.apple.com/apps),
-   go to **+** → New App. Choose iOS, name it **Bananagrams 2 player**, choose
+   go to **+** → New App. Choose iOS, name it **Nanagrams**, choose
    English (U.S.) as the primary language, pick bundle ID
    `com.ericmanzi.bananagrams`, and enter any SKU (for example `bananagrams`).
 
@@ -120,14 +120,31 @@ The workflow runs from four secrets plus signing credentials stored on EAS:
    appears in App Store Connect under TestFlight, where you add yourself as a
    tester.
 
+### App Store keywords
+
+The listing's search keywords live in `store/keywords.txt`: comma-separated, at
+most 100 characters. The workflow's *Update App Store keywords* job
+(`scripts/store-listing.js`) pushes them to every version in App Store Connect
+that can still be edited, normally the one in "Prepare for Submission". To
+change them, edit the file and push to `main`, or start the workflow by hand
+with **listing_only** ticked to skip the build.
+
+They include "bananagrams" on purpose, so people searching for that find the
+app. App Review guideline 2.3.7 forbids other companies' trademarks in
+metadata, so if the app is rejected for it, or Bananagrams, Inc. complains,
+remove those two words from the file and push again.
+
 `ci.yml` runs the typecheck and tests on pull requests and branch pushes.
 
 ## Notes
 
-- **Home-screen name.** iOS cuts long names on the home screen, so
-  "Bananagrams 2 player" shows as roughly "Bananagrams…". To show a shorter
-  label there while keeping the full name in the App Store, change `expo.name`
-  in `app.json`.
+- **Name.** The app is called Nanagrams everywhere players see it: on the
+  home screen (`expo.name` in `app.json`), in the App Store and in the app
+  itself. "Bananagrams" is a trademark, so keep it out of anything
+  user-facing. The bundle ID (`com.ericmanzi.bananagrams`), the Expo slug and
+  the save-game keys still say "bananagrams". Players never see them, and they
+  can't change without breaking the App Store Connect app, the EAS project and
+  existing saved games.
 - **Dependency versions.** Native module versions are pinned to what Expo SDK
   57 expects. `react-native-gesture-handler`, `react-native-reanimated` and
   `react-native-worklets` are listed only for this reason: expo-router pulls
