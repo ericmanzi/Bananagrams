@@ -162,13 +162,13 @@ jobs:
             --non-interactive \
             --wait 2>&1 | stdbuf -oL cut -c1-2000
 
-      # An upload normally takes a few minutes. If Expo's queue or Apple stalls,
-      # fail visibly instead of holding the runner for hours; the upload itself
-      # runs on Expo's servers and may still finish (check App Store Connect),
-      # and otherwise a run with skip_build retries it.
+      # Uploads wait in Expo's submission queue first, which has taken well
+      # over an hour (build 5: 1h40m). Past two hours, fail visibly instead of
+      # holding the runner for six; the upload runs on Expo's servers and may
+      # still land (check App Store Connect), otherwise skip_build retries it.
       - name: Submit to TestFlight
         if: steps.profile.outputs.profile == 'production'
-        timeout-minutes: 45
+        timeout-minutes: 120
         run: |
           set -o pipefail
           eas submit \
