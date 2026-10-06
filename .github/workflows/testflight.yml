@@ -151,6 +151,7 @@ jobs:
 
       # eas-cli prints a whole minified source line when it crashes, and GitHub
       # then drops the error after it; trimming each line keeps the error.
+      # stdbuf keeps cut from holding output back, so progress shows live.
       - name: Build iOS app
         if: github.event.inputs.skip_build != 'true'
         run: |
@@ -159,10 +160,15 @@ jobs:
             --platform ios \
             --profile ${{ steps.profile.outputs.profile }} \
             --non-interactive \
-            --wait 2>&1 | cut -c1-2000
+            --wait 2>&1 | stdbuf -oL cut -c1-2000
 
+      # Uploads wait in Expo's submission queue first, which has taken well
+      # over an hour (build 5: 1h40m). Past two hours, fail visibly instead of
+      # holding the runner for six; the upload runs on Expo's servers and may
+      # still land (check App Store Connect), otherwise skip_build retries it.
       - name: Submit to TestFlight
         if: steps.profile.outputs.profile == 'production'
+        timeout-minutes: 120
         run: |
           set -o pipefail
           eas submit \
@@ -170,4 +176,4 @@ jobs:
             --profile production \
             --latest \
             --non-interactive \
-            --verbose 2>&1 | cut -c1-2000
+            --verbose 2>&1 | stdbuf -oL cut -c1-2000
