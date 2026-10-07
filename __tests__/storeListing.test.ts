@@ -44,3 +44,29 @@ describe('editableVersions', () => {
     expect(editableVersions([{ id: 'old', attributes: { appStoreState: 'PREPARE_FOR_SUBMISSION' } }])).toHaveLength(1);
   });
 });
+
+describe('store listing text', () => {
+  const md = fs.readFileSync(path.join(__dirname, '..', 'store', 'listing.md'), 'utf8');
+  const field = (name: string) => {
+    const m = md.match(new RegExp(`<!-- ${name} -->\\n([\\s\\S]*?)\\n<!-- /${name} -->`));
+    if (!m) throw new Error(`listing.md has no ${name} block`);
+    return m[1].trim();
+  };
+
+  it.each([
+    ['subtitle', 30],
+    ['promo', 170],
+    ['description', 4000],
+    ['review-notes', 4000],
+  ])('keeps the %s within %i characters', (name, max) => {
+    const text = field(name);
+    expect(text.length).toBeGreaterThan(0);
+    expect(text.length).toBeLessThanOrEqual(max);
+  });
+
+  it('keeps the trademark out of what players read', () => {
+    for (const name of ['subtitle', 'promo', 'description']) {
+      expect(field(name)).not.toMatch(/bananagram/i);
+    }
+  });
+});
