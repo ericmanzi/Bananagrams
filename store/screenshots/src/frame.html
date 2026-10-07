@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Nunito;font-weight:800;src:url(nunito-latin-800-normal.woff2)}
+@font-face{font-family:Nunito;font-weight:900;src:url(nunito-latin-900-normal.woff2)}
+html,body{margin:0;width:1320px;height:2868px;overflow:hidden}
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.035) 2px,transparent 2px) 0 0/88px 88px,
+    linear-gradient(90deg,rgba(255,255,255,.035) 2px,transparent 2px) 0 0/88px 88px,
+    radial-gradient(120% 70% at 50% 18%,#26386a 0%,#16213e 55%,#0f1629 100%);
+  font-family:Nunito,sans-serif;color:#fff;position:relative}
+.cap{position:absolute;top:150px;left:80px;right:80px;text-align:center}
+h1{margin:0;text-wrap:balance;font-weight:900;font-size:104px;line-height:1.02;color:#FFE135;letter-spacing:-1px;
+   text-shadow:0 6px 0 rgba(0,0,0,.25)}
+p{margin:26px 0 0;text-wrap:balance;font-weight:800;font-size:50px;line-height:1.2;color:rgba(255,255,255,.88)}
+.phone{position:absolute;left:50%;transform:translateX(-50%);top:640px;width:1030px;
+  border-radius:78px;padding:18px;background:#0a0f1e;
+  box-shadow:0 0 0 4px rgba(255,255,255,.10),0 50px 120px rgba(0,0,0,.55)}
+.phone img{display:block;width:100%;border-radius:62px}
+</style></head><body>
+<div class="cap"><h1 id="h"></h1><p id="s"></p></div>
+<div class="phone"><img id="img"></div>
+<script>
+const q=new URLSearchParams(location.search);
+document.getElementById('h').textContent=q.get('h');
+document.getElementById('s').textContent=q.get('s');
+document.getElementById('img').src=q.get('img');
+</script></body></html>

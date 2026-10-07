@@ -120,6 +120,15 @@ The workflow runs from four secrets plus signing credentials stored on EAS:
    appears in App Store Connect under TestFlight, where you add yourself as a
    tester.
 
+### App Store listing
+
+`store/listing.md` has everything App Store Connect asks for: subtitle,
+promotional text, description, privacy answers, URLs and the note for App
+Review. `npm test` checks its character limits. `store/screenshots/` holds the
+four 6.9-inch screenshots (1320 × 2868) in upload order. `store/screenshots/src/`
+rebuilds them from the raw iPhone captures (`python3 prepare.py`, then
+`node render.js`).
+
 ### App Store keywords
 
 The listing's search keywords live in `store/keywords.txt`: comma-separated, at
