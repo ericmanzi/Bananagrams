@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"><style>
+html,body{width:3840px;height:2560px}
+h1{position:absolute;top:150px;left:0;right:0;margin:0;text-align:center;font-weight:900;font-size:170px;
+   line-height:1;color:var(--banana);letter-spacing:-2px;text-shadow:0 8px 0 rgba(0,0,0,.25)}
+p{position:absolute;top:360px;left:0;right:0;margin:0;text-align:center;font-weight:800;font-size:76px;color:rgba(255,255,255,.88)}
+.phone{position:absolute;top:560px;width:880px;border-radius:84px;padding:20px;background:#0a0f1e;
+  box-shadow:0 0 0 5px rgba(255,255,255,.10),0 60px 140px rgba(0,0,0,.55)}
+.phone img{display:block;width:100%;border-radius:66px}
+#bananaBox{position:absolute;width:640px;height:640px}
+</style></head><body>
+<!-- Search results, 3:2: say what the game is and show it being played. -->
+<h1>Turn your tiles into one crossword</h1>
+<p>Play solo or race a friend online</p>
+<div class="phone" style="left:calc(50% - 980px)"><img src="../../screenshots/src/work/hero.png"></div>
+<div class="phone" style="left:calc(50% + 60px)"><img src="../../screenshots/src/work/green.png"></div>
+<script>
+window.mountBanana = (svg, box, fit) => {
+  box.innerHTML = svg;
+  const s = box.querySelector('svg');
+  s.setAttribute('width', box.clientWidth); s.setAttribute('height', box.clientHeight);
+  const g = s.querySelector('#bunch');
+  const b = g.getBBox(), k = fit / Math.max(b.width, b.height);
+  g.setAttribute('transform', `translate(${512 - (b.x + b.width / 2) * k} ${512 - (b.y + b.height / 2) * k}) scale(${k})`);
+  s.style.filter = 'drop-shadow(0 30px 50px rgba(0,0,0,.45))';
+};
+</script></body></html>

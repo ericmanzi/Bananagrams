@@ -129,6 +129,13 @@ four 6.9-inch screenshots (1320 × 2868) in upload order. `store/screenshots/src
 rebuilds them from the raw iPhone captures (`python3 prepare.py`, then
 `node render.js`).
 
+`store/creative/` holds the optional creative assets (App Store Connect →
+version page → **Header and Search Results**): `header.png` (3840 × 1646) and
+`search-results.png` (3840 × 2560). The header keeps its art centred, so it
+survives square-ish crops, and leaves the bottom clear for the icon, name and
+Get button the App Store lays over it. `store/creative/src/render.js` rebuilds
+both (run the screenshots' `prepare.py` first).
+
 ### App Store keywords
 
 The listing's search keywords live in `store/keywords.txt`: comma-separated, at

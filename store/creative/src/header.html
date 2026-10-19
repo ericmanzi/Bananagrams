@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"><style>
+html,body{width:3840px;height:1646px}
+#art{position:absolute;inset:0}
+.loose{opacity:.28;filter:blur(2px)}
+</style></head><body><div id="art"></div>
+<script>
+// Product page header, 21:9. Everything that matters sits in the centre so any
+// device crop keeps it; the bottom stays quiet for the icon, name and Get button
+// the App Store lays over the header.
+const W = 3840, H = 1646, art = document.getElementById('art');
+function tile(letter, x, y, size, opts = {}) {
+  const t = document.createElement('div');
+  t.className = 'tile' + (opts.green ? ' g' : '') + (opts.loose ? ' loose' : '');
+  Object.assign(t.style, {
+    left: x + 'px', top: y + 'px', width: size + 'px', height: size + 'px',
+    borderRadius: size * 0.18 + 'px', borderBottomWidth: size * 0.07 + 'px',
+    fontSize: size * 0.56 + 'px', transform: `rotate(${opts.rot || 0}deg)`,
+  });
+  t.textContent = letter;
+  art.appendChild(t);
+}
+// Loose tiles drifting at the sides, away from the centre.
+[['P',260,180,170,-14],['E',620,520,140,9],['L',300,880,190,6],['T',760,1180,130,-8],['Q',120,560,120,16],
+ ['S',3420,200,170,12],['D',3060,560,140,-10],['U',3460,900,190,-5],['M',3000,1150,130,9],['X',3640,600,120,-16],
+ ['O',1040,240,110,-20],['K',2700,260,110,18]]
+  .forEach(([l,x,y,s,r]) => tile(l, x, y, s, { rot: r, loose: true }));
+// Wordmark: NANAGRAMS in tiles, alternating green and yellow like the home screen.
+const word = 'NANAGRAMS', size = 150, gap = 18;
+const total = word.length * size + (word.length - 1) * gap;
+[...word].forEach((l, i) => tile(l, (W - total) / 2 + i * (size + gap), 800, size, { green: i % 2 === 0 }));
+</script>
+<div style="position:absolute;left:50%;top:90px;width:680px;height:680px;transform:translateX(-50%)" id="bananaBox"></div>
+<script>
+// render.js passes the icon's banana SVG in (file:// pages can't fetch files).
+window.mountBanana = (svg, box, fit) => {
+  box.innerHTML = svg;
+  const s = box.querySelector('svg');
+  s.setAttribute('width', box.clientWidth); s.setAttribute('height', box.clientHeight);
+  const g = s.querySelector('#bunch');
+  const b = g.getBBox(), k = fit / Math.max(b.width, b.height);
+  g.setAttribute('transform', `translate(${512 - (b.x + b.width / 2) * k} ${512 - (b.y + b.height / 2) * k}) scale(${k})`);
+  s.style.filter = 'drop-shadow(0 30px 50px rgba(0,0,0,.45))';
+};
+</script></body></html>
